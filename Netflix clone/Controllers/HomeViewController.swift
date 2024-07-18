@@ -17,6 +17,14 @@ class HomeViewController: UIViewController {
     private let sectionHeaders:[String]=[
     "Trending Movies","Popular","Trending TVs", "Upcoming Movies" , "Top Rated"
     ]
+    
+    enum Section:Int {
+        case trendingMovies = 0
+        case popular = 1
+        case trendingTvs = 2
+        case upcomingMovies = 3
+        case topRated = 4
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -28,9 +36,9 @@ class HomeViewController: UIViewController {
         homeFeedtable.tableHeaderView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 400))
         configureNavBar()
         
-        Task{
-            let moviesss = try? await APICaller.shared.getTrendingMovies(get: .TopRatedMovies)
-        }
+//        Task{
+//            let moviesss = try? await APICaller.shared.getTrendingMovies(get: .TopRatedMovies)
+//        }
         
     }
     
@@ -62,9 +70,7 @@ extension HomeViewController : UITableViewDelegate , UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1
     }
-//    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-//        return sectionHeaders[section]
-//    }
+
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let containerView = UIView()
         let text = UILabel()
@@ -85,6 +91,56 @@ extension HomeViewController : UITableViewDelegate , UITableViewDataSource{
         
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CollectionViewTableViewCell.identifier, for: indexPath) as? CollectionViewTableViewCell else{
             return UITableViewCell()
+        }
+        
+        switch indexPath.section {
+        case Section.trendingMovies.rawValue:
+            Task{
+                do {
+                    let fetchedMovies = try await APICaller.shared.getTrendingMovies(get: .TrendingMovies)
+                    cell.configureMovieTitles(titles: fetchedMovies)
+                } catch let error {
+                    print(error)
+                }
+            }
+        case Section.popular.rawValue:
+            Task{
+                do {
+                    let fetchedMovies = try await APICaller.shared.getTrendingMovies(get: .PopularMovies)
+                    cell.configureMovieTitles(titles: fetchedMovies)
+                } catch let error {
+                    print(error)
+                }
+            }
+        case Section.trendingTvs.rawValue:
+            Task{
+                do {
+                    let fetchedMovies = try await APICaller.shared.getTrendingMovies(get: .TrendingTVs)
+                    cell.configureMovieTitles(titles: fetchedMovies)
+                } catch let error {
+                    print(error)
+                }
+            }
+        case Section.upcomingMovies.rawValue:
+            Task{
+                do {
+                    let fetchedMovies = try await APICaller.shared.getTrendingMovies(get: .UpcomingMovies)
+                    cell.configureMovieTitles(titles: fetchedMovies)
+                } catch let error {
+                    print(error)
+                }
+            }
+        case Section.topRated.rawValue:
+            Task{
+                do {
+                    let fetchedMovies = try await APICaller.shared.getTrendingMovies(get: .TopRatedMovies)
+                    cell.configureMovieTitles(titles: fetchedMovies)
+                } catch let error {
+                    print(error)
+                }
+            }
+        default:
+            break
         }
         return cell
     }

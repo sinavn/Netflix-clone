@@ -47,7 +47,7 @@ class APICaller {
                 throw networkError.invalidResponse
             }
         }catch{
-            print("error fetching data ")
+            print("error fetching data (API caller ")
             throw error
         }
 
