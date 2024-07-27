@@ -17,10 +17,14 @@ class UpcomingViewController: UIViewController {
     }()
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureUpcomingMovies()
+        navigationItem.title = "Upcoming Movies"
+        navigationController?.navigationBar.prefersLargeTitles = true
+ 
+        fetcheUpcomingMovies()
         view.addSubview(upcomingMoviesTableView)
         upcomingMoviesTableView.dataSource = self
         upcomingMoviesTableView.delegate = self
+   
     }
     
     override func viewDidLayoutSubviews() {
@@ -28,7 +32,7 @@ class UpcomingViewController: UIViewController {
         upcomingMoviesTableView.frame = view.bounds
     }
 
-    func configureUpcomingMovies (){
+    func fetcheUpcomingMovies (){
         Task{
             do{
                 let fetchedMovies = try await APICaller.shared.getTrendingMovies(get: .UpcomingMovies)
@@ -41,6 +45,7 @@ class UpcomingViewController: UIViewController {
     }
 
 }
+
 extension UpcomingViewController:UITableViewDelegate , UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -50,12 +55,11 @@ extension UpcomingViewController:UITableViewDelegate , UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: MovieTableViewCell.identifier, for: indexPath) as? MovieTableViewCell else {return UITableViewCell()}
         let movie = movies[indexPath.row]
-        cell.configuePosterImage(model: MovieViewModel(movieTitle: movie.originalTitle ?? "unknown title", posterURL: movie.posterPath ?? ""))
+        cell.configuePosterImage(model: MovieViewModel(movieTitle: movie.title ?? "unknown title", posterURL: movie.posterPath ?? ""))
         cell.backgroundColor = .systemBackground
         return cell
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 180
     }
-    
 }

@@ -31,7 +31,7 @@ class MovieTableViewCell: UITableViewCell {
         let button = UIButton()
         let image = UIImage(systemName: "play.circle",withConfiguration:UIImage.SymbolConfiguration(pointSize: 25))
         button.setImage(image, for: .normal)
-        button.tintColor = .white
+        button.tintColor = .label
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()

@@ -18,6 +18,7 @@ class APICaller {
         case invalidURL
         case invalidResponse
         case invalidData
+        case invalidQuery
         case serverError(statusCode:Int)
     }
     enum apiURL : String {
@@ -51,5 +52,25 @@ class APICaller {
             throw error
         }
 
+    }
+    
+    func search (for queryItem:String) async throws -> [Movie] {
+        guard let allowedqueryItem = queryItem.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {throw networkError.invalidQuery}
+        guard let url = URL(string: "\(Constants.baseURL)search/movie?api_key=\(Constants.apiKey)&query=\(allowedqueryItem)") else {
+            throw networkError.invalidURL
+        }
+        do {
+            let (data,response) = try await URLSession.shared.data(from: url)
+            guard let response = response as? HTTPURLResponse else{throw networkError.invalidResponse}
+            if response.statusCode >= 200 && response.statusCode < 300 {
+                let result = try JSONDecoder().decode(MoviesModel.self, from: data)
+                return result.results
+            }else{
+                throw networkError.serverError(statusCode: response.statusCode)
+            }
+        } catch  {
+            print("error fetching data (search API call")
+            throw error
+        }
     }
 }

@@ -41,7 +41,7 @@ class TitleCollectionViewCell: UICollectionViewCell {
             titleImage.sd_imageIndicator = SDWebImageActivityIndicator.white
             titleImage.sd_setImage(with: url)
         }else{
-            print("error getting movie image")
+            print("error getting collectionViewCell image")
         }
     }
 }
