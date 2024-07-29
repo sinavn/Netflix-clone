@@ -37,9 +37,10 @@ class HomeViewController: UIViewController {
         configureNavBar()
         
 //        Task{
-//            let moviesss = try? await APICaller.shared.getTrendingMovies(get: .TopRatedMovies)
+//            let harry = try? await APICaller.shared.getTrailer(with:"harry")
+//            print(harry)
 //        }
-        
+//        navigationController?.pushViewController(TitlePreviewViewController(), animated: true)
     }
     
     override func viewDidLayoutSubviews() {
@@ -142,6 +143,7 @@ extension HomeViewController : UITableViewDelegate , UITableViewDataSource{
         default:
             break
         }
+        cell.delegate = self
         return cell
     }
      
@@ -161,4 +163,14 @@ extension HomeViewController : UITableViewDelegate , UITableViewDataSource{
     }
      
     
+}
+extension HomeViewController : CollectionViewTableViewCellDelegate {
+    func collectionViewTableViewCellDidTapCell(_ cell: CollectionViewTableViewCell, viewModel: TitlePreviewViewModel) {
+        DispatchQueue.main.async {
+            let vc = TitlePreviewViewController()
+            vc.configurePreview(with: viewModel)
+            self.navigationController?.pushViewController(vc , animated: true)
+        }
+    }
+
 }

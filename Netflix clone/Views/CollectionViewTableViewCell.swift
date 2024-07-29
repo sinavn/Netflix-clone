@@ -7,9 +7,16 @@
 
 import UIKit
 
+protocol CollectionViewTableViewCellDelegate : AnyObject {
+    func collectionViewTableViewCellDidTapCell(_ cell:CollectionViewTableViewCell , viewModel : TitlePreviewViewModel)
+}
+
 class CollectionViewTableViewCell: UITableViewCell {
     
     static let identifier = "CollectionViewTableViewCell"
+    
+    weak var delegate : CollectionViewTableViewCellDelegate?
+     
     private var movieTitles : [Movie] = []
     private let collectionView:UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -28,6 +35,7 @@ class CollectionViewTableViewCell: UITableViewCell {
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.delegate = self
         collectionView.dataSource = self
+        
     }
     
     required init?(coder: NSCoder) {
@@ -56,5 +64,17 @@ extension CollectionViewTableViewCell : UICollectionViewDelegate , UICollectionV
         return cell
     }
     
-    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
+        let selectedMovie = movieTitles[indexPath.row]
+        Task{
+            do{
+                let result = try await APICaller.shared.getTrailer(with: selectedMovie.title ?? selectedMovie.originalName ?? "" + "Trailer")
+                guard let videoId = result.first?.id.videoId else {return}
+                delegate?.collectionViewTableViewCellDidTapCell(self, viewModel: TitlePreviewViewModel(title: selectedMovie.title ?? selectedMovie.originalName ?? "unknown", videoID: videoId, titleOverview: selectedMovie.overview ?? "unknown overview "))
+            }catch let error{
+                print("error getting yotube video id \(error)")
+            }
+        }
+    }
 }
