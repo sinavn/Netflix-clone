@@ -20,7 +20,6 @@ struct Movie : Codable {
     let mediaType: MediaType?
     let adult: Bool?
     let title, originalLanguage: String?
-    let genreIDS: [Int]
     let popularity: Double?
     let releaseDate: String?
     let firstAirDate: String?/*TV series*/
@@ -39,7 +38,6 @@ struct Movie : Codable {
         case mediaType = "media_type"
         case adult, title
         case originalLanguage = "original_language"
-        case genreIDS = "genre_ids"
         case popularity
         case releaseDate = "release_date"
         case firstAirDate = "first_air_date"

@@ -77,7 +77,7 @@ class MovieTableViewCell: UITableViewCell {
     
     public func configuePosterImage (model:MovieViewModel){
         guard let url = URL(string: "https://image.tmdb.org/t/p/w500"+model.posterURL) else{return}
-            moviePoster.sd_imageIndicator = SDWebImageProgressIndicator()
+        moviePoster.sd_imageIndicator = SDWebImageActivityIndicator.white
             moviePoster.sd_setImage(with: url)
         titleLabel.text = model.movieTitle
     }

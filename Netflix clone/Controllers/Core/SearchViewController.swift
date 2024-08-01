@@ -31,7 +31,9 @@ class SearchViewController: UIViewController {
         navigationController?.navigationBar.tintColor = .label
         view.addSubview(searchTable)
         fetchDiscoverMovies()
-    
+        
+        guard let searchResultController = searchController.searchResultsController as? SearchResultViewController else{return}
+        searchResultController.delegate = self
         searchController.searchResultsUpdater = self
         searchTable.dataSource = self
         searchTable.delegate = self
@@ -74,6 +76,21 @@ extension SearchViewController : UITableViewDelegate , UITableViewDataSource{
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        let selectedTitle = titles[indexPath.row]
+        Task{
+            do{
+                let videoId = try await APICaller.shared.getTrailer(with: selectedTitle.title ?? selectedTitle.originalName ?? "" + "Trailer")
+                let vc = TitlePreviewViewController()
+                let viewModel = TitlePreviewViewModel(title: selectedTitle.title ?? selectedTitle.originalName ?? ""
+                                              , videoID: videoId.first!.id.videoId,
+                                              titleOverview: selectedTitle.overview ?? "")
+                vc.configurePreview(with: viewModel)
+                navigationController?.pushViewController(vc, animated: true)
+            
+            }catch let error{
+                print(error)
+            }
+        }
     }
 }
 
@@ -85,7 +102,6 @@ extension SearchViewController : UISearchResultsUpdating {
               !textQuery.trimmingCharacters(in: .whitespaces).isEmpty ,
               textQuery.trimmingCharacters(in: .whitespaces).count > 3,
               let resultController = searchController.searchResultsController as? SearchResultViewController
-
         else{return}
         Task{
             do{
@@ -97,4 +113,12 @@ extension SearchViewController : UISearchResultsUpdating {
         }
     }
    
+}
+extension SearchViewController : SearchResultViewControllerDelegate {
+    func searchResultViewControllerDidSelectItem(_ viewModel: TitlePreviewViewModel) {
+        let vc = TitlePreviewViewController()
+        vc.configurePreview(with: viewModel)
+        navigationController?.pushViewController(vc, animated: true)
+    }
+ 
 }

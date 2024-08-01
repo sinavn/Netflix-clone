@@ -16,7 +16,7 @@ class CollectionViewTableViewCell: UITableViewCell {
     static let identifier = "CollectionViewTableViewCell"
     
     weak var delegate : CollectionViewTableViewCellDelegate?
-     
+    
     private var movieTitles : [Movie] = []
     private let collectionView:UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -50,6 +50,18 @@ class CollectionViewTableViewCell: UITableViewCell {
         movieTitles = titles
         self.collectionView.reloadData()
     }
+    private func downloadTitleAt(indexPath:[IndexPath]){
+        
+        DataPersistenceManager.shared.downloadTitleWith(model: movieTitles[indexPath.first!.row]) { result in
+            switch result {
+            case .success():
+                NotificationCenter.default.post(name: NSNotification.Name("download"), object: nil)
+            case.failure(let error):
+                print(error)
+            }
+        }
+        
+    }
 }
 
 extension CollectionViewTableViewCell : UICollectionViewDelegate , UICollectionViewDataSource {
@@ -75,6 +87,20 @@ extension CollectionViewTableViewCell : UICollectionViewDelegate , UICollectionV
             }catch let error{
                 print("error getting yotube video id \(error)")
             }
+        }
+    }
+ 
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+        if indexPaths.isEmpty {
+            return nil
+        }else{
+            return UIContextMenuConfiguration(actionProvider:  { [weak self] _ in
+                let downloadAction = UIAction(title: "Download",image: UIImage(systemName: "arrow.down.square.fill")) { _ in
+                    self?.downloadTitleAt(indexPath: indexPaths)
+                }
+                
+                return UIMenu(options: .displayInline,children: [downloadAction])
+            })
         }
     }
 }

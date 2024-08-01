@@ -6,9 +6,12 @@
 //
 
 import UIKit
-
+protocol SearchResultViewControllerDelegate:AnyObject {
+    func searchResultViewControllerDidSelectItem (_ viewModel : TitlePreviewViewModel)
+}
 class SearchResultViewController: UIViewController {
     
+        weak var delegate : SearchResultViewControllerDelegate?
      private var searchedMovies : [Movie] = []
      private let searchResultCollectionView : UICollectionView = {
         
@@ -18,13 +21,12 @@ class SearchResultViewController: UIViewController {
         collection.register(TitleCollectionViewCell.self, forCellWithReuseIdentifier: TitleCollectionViewCell.identifier)
         return collection
     }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-//        view.backgroundColor = .green
         view.addSubview(searchResultCollectionView)
         searchResultCollectionView.delegate = self
         searchResultCollectionView.dataSource = self
-
     }
     
     override func viewDidLayoutSubviews() {
@@ -54,6 +56,20 @@ extension SearchResultViewController : UICollectionViewDelegate , UICollectionVi
         
         return cell
     }
-    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
+        let selectedTitle = searchedMovies[indexPath.row]
+        Task{
+            do{
+                let videoId = try await APICaller.shared.getTrailer(with: selectedTitle.originalTitle ?? selectedTitle.originalName ?? "" + "Trailer")
+                let viewModel = TitlePreviewViewModel(title: selectedTitle.title ?? selectedTitle.originalName ?? ""
+                                                      , videoID: videoId.first!.id.videoId,
+                                                      titleOverview: selectedTitle.overview ?? "")
+                delegate?.searchResultViewControllerDidSelectItem(viewModel)
+            }catch{
+                print(error)
+            }
+        }
+    }
     
 }

@@ -48,6 +48,7 @@ class UpcomingViewController: UIViewController {
 
 extension UpcomingViewController:UITableViewDelegate , UITableViewDataSource {
     
+ 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
       return  movies.count
     }
@@ -64,5 +65,22 @@ extension UpcomingViewController:UITableViewDelegate , UITableViewDataSource {
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        let selectedTitle = movies[indexPath.row]
+        Task{
+            do{
+                let videoId = try await APICaller.shared.getTrailer(with: selectedTitle.title ?? selectedTitle.originalName ?? "" + "Trailer")
+                let vc = TitlePreviewViewController()
+                let viewModel = TitlePreviewViewModel(title: selectedTitle.title ?? selectedTitle.originalName ?? ""
+                                              , videoID: videoId.first!.id.videoId,
+                                              titleOverview: selectedTitle.overview ?? "")
+                vc.configurePreview(with: viewModel)
+                navigationController?.pushViewController(vc, animated: true)
+            
+            }catch{
+                print(error)
+            }
+        }
+       
     }
+    
 }

@@ -8,12 +8,16 @@
 import UIKit
 
 class HomeViewController: UIViewController {
-
+    
+    private var randomTrendingMovie : Movie?
+    private var headerView : HeroHeaderUIView?
+    
     private let homeFeedtable : UITableView = {
         let table = UITableView(frame: .zero, style: .grouped)
         table.register(CollectionViewTableViewCell.self, forCellReuseIdentifier: CollectionViewTableViewCell.identifier)
         return table
     }()
+    
     private let sectionHeaders:[String]=[
     "Trending Movies","Popular","Trending TVs", "Upcoming Movies" , "Top Rated"
     ]
@@ -25,17 +29,21 @@ class HomeViewController: UIViewController {
         case upcomingMovies = 3
         case topRated = 4
     }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         view.addSubview(homeFeedtable )
-        
         homeFeedtable.showsVerticalScrollIndicator = false
         homeFeedtable.delegate = self
         homeFeedtable.dataSource = self
-        homeFeedtable.tableHeaderView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 400))
+        headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 230))
         configureNavBar()
         
+        Task{
+            await configHeroHeaderView()
+        }
+   
 //        Task{
 //            let harry = try? await APICaller.shared.getTrailer(with:"harry")
 //            print(harry)
@@ -47,6 +55,7 @@ class HomeViewController: UIViewController {
         super.viewDidLayoutSubviews()
         homeFeedtable.frame = view.bounds
     }
+    
     private func configureNavBar(){
         var image = UIImage(named: "netflixLogo")
         image = image?.withRenderingMode(.alwaysOriginal)
@@ -56,9 +65,25 @@ class HomeViewController: UIViewController {
             UIBarButtonItem(image: UIImage(systemName: "play.rectangle"), style: .done, target: self, action: nil)
         ]
         navigationController?.navigationBar.tintColor = .white
-        
+    }
+    private func configHeroHeaderView()async{
+        do {
+            let result = try await APICaller.shared.getTrendingMovies(get: .TrendingMovies)
+            randomTrendingMovie = result.randomElement()
+            headerView?.configHeroImage(model: randomTrendingMovie)
+            homeFeedtable.tableHeaderView = headerView
+
+        } catch let error {
+            print(error)
+        }
     }
     
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        guard let layer = headerView?.layer.sublayers?.first(where: {$0.name == "gradientLayer"}) as? CAGradientLayer else {return}
+        layer.colors = [
+            UIColor.clear.cgColor , UIColor.systemBackground.cgColor
+        ]
+    }
 }
 
 

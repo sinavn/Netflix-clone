@@ -51,6 +51,7 @@ class TitlePreviewViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.navigationBar.transform = .init(translationX: 0, y: 0)
+        navigationController?.navigationBar.tintColor = .white
         view.backgroundColor = .systemBackground
         view.addSubview(titleLabel)
         view.addSubview(overViewLabel)
@@ -71,8 +72,8 @@ class TitlePreviewViewController: UIViewController {
         NSLayoutConstraint.activate([
             ytPlayer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             ytPlayer.leadingAnchor.constraint(equalTo: view.leadingAnchor , constant: 5),
-            ytPlayer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 5),
-            ytPlayer.heightAnchor.constraint(equalToConstant: 250)
+            ytPlayer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -5),
+            ytPlayer.heightAnchor.constraint(equalToConstant: 200)
         ])
         //title label
         NSLayoutConstraint.activate([

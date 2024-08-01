@@ -6,20 +6,22 @@
 //
 
 import UIKit
+import SDWebImage
 
 class HeroHeaderUIView: UIView {
 
     private let heroImageView : UIImageView = {
        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
+        imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
-        imageView.image = UIImage(named: "waves")
+//        imageView.image = UIImage(named: "waves")
         return imageView
     }()
     private let playButton : UIButton = {
         let button = UIButton()
         button.setTitle("Play", for: .normal)
-        button.layer.borderColor = UIColor.white.cgColor
+        button.setTitleColor(.label, for: .normal)
+        button.layer.borderColor = UIColor.gray.cgColor
         button.layer.borderWidth = 1
         button.layer.cornerRadius = 8
         button.translatesAutoresizingMaskIntoConstraints = false // false if adding constraints manually
@@ -28,7 +30,8 @@ class HeroHeaderUIView: UIView {
     private let downloadButton : UIButton = {
         let button = UIButton()
         button.setTitle("Download", for: .normal)
-        button.layer.borderColor = UIColor.white.cgColor
+        button.setTitleColor(.label, for: .normal)
+        button.layer.borderColor = UIColor.gray.cgColor
         button.layer.borderWidth = 1
         button.layer.cornerRadius = 8
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -43,25 +46,27 @@ class HeroHeaderUIView: UIView {
         addSubview(playButton)
         addSubview(downloadButton)
         applyConstraints()
+        
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         heroImageView.frame = bounds // give frame to imageView
+        
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     // create gradient layer
-    private func addGradient(){
+     func addGradient(){
         let gradientLayer = CAGradientLayer()
         gradientLayer.colors = [
             UIColor.clear.cgColor , UIColor.systemBackground.cgColor
         ]
+         gradientLayer.name = "gradientLayer"
         gradientLayer.frame = bounds // give frame to gradientLayer
         layer.addSublayer(gradientLayer)
-        
     }
     
     private func applyConstraints (){
@@ -78,5 +83,11 @@ class HeroHeaderUIView: UIView {
         ]
         NSLayoutConstraint.activate(playButtonConstraints)
         NSLayoutConstraint.activate(downloadButtonConstraints)
+    }
+    
+    func configHeroImage (model:Movie?){
+        guard let url = URL(string: "https://image.tmdb.org/t/p/w500"+(model?.backdropPath ?? ""))else{return}
+        heroImageView.sd_imageIndicator = SDWebImageActivityIndicator.white
+        heroImageView.sd_setImage(with: url)
     }
 }
